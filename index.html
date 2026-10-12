@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contrastar · Verifica una noticia en minutos</title>
+<meta name="description" content="Herramienta gratuita en español para revisar si una noticia o publicación muestra técnicas de desprestigio, blanqueo o desinformación. Con IA o con una guía rápida sin IA.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=zodiak@400,500,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<a class="skip" href="#principal">Saltar al contenido</a>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#" aria-label="Contrastar, inicio">
+      <svg class="logo" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="17" cy="17" r="11" stroke="currentColor" stroke-width="3"/>
+        <path d="M17 6a11 11 0 0 1 0 22z" fill="currentColor"/>
+        <path d="M25.5 25.5 35 35" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+      </svg>
+      <span>Contrastar</span>
+    </a>
+    <nav aria-label="Secciones">
+      <a href="#analizar">Analizar</a>
+      <a href="#guia">Sin IA</a>
+      <a href="#tecnicas">Técnicas</a>
+      <a href="#acerca">Acerca</a>
+    </nav>
+    <button class="icon-btn" id="tema" type="button" aria-label="Cambiar entre modo claro y oscuro">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="principal">
+  <section class="hero" id="analizar">
+    <div class="wrap">
+      <p class="kicker">Verificación ciudadana · gratuita</p>
+      <h1>¿Es confiable lo que acabas de leer?</h1>
+      <p class="lead">Pega el enlace de una noticia o publicación. Contrastar revisa la fuente, busca técnicas de desprestigio o blanqueo y te dice qué comprobar antes de creer o compartir.</p>
+
+      <form class="checker" id="form" novalidate>
+        <label for="url" class="sr">Enlace de la noticia</label>
+        <div class="url-row">
+          <input id="url" type="url" inputmode="url" autocomplete="off" placeholder="https://www.elpais.com/…" required>
+          <button class="btn primary" type="submit" id="btn-analizar">Analizar</button>
+        </div>
+
+        <div class="modes" role="radiogroup" aria-label="Tipo de análisis">
+          <label class="mode"><input type="radio" name="modo" value="ia" checked><span><b>Con IA</b> Informe automático en menos de un minuto</span></label>
+          <label class="mode"><input type="radio" name="modo" value="sinia"><span><b>Sin IA</b> Revisión del enlace y guía de 13 preguntas</span></label>
+        </div>
+
+        <details class="more">
+          <summary>¿La noticia tiene muro de pago? Pega aquí el texto</summary>
+          <label for="texto" class="sr">Texto de la noticia</label>
+          <textarea id="texto" rows="6" placeholder="Copia y pega el texto completo del artículo o de la publicación…"></textarea>
+        </details>
+
+        <div class="byok" id="byok" hidden>
+          <p class="byok-note"><b>Elige la IA. Hay opciones gratuitas</b>, incluida la del propio navegador, que no necesita clave. Si usas una clave, se guarda solo en la memoria de esta pestaña y se envía únicamente al proveedor que elijas.</p>
+          <div class="byok-grid">
+            <label>Proveedor
+              <select id="proveedor"></select>
+            </label>
+            <label>Clave de API
+              <input id="clave" type="password" autocomplete="off" placeholder="Pega tu clave aquí">
+            </label>
+            <label>Modelo
+              <input id="modelo" type="text" autocomplete="off">
+            </label>
+          </div>
+          <p class="prov-note" id="prov-nota"></p>
+        </div>
+
+        <p class="fine">¿Solo quieres ver cómo es un informe? <button type="button" class="linklike" id="btn-ejemplo">Ver un ejemplo</button></p>
+      </form>
+    </div>
+  </section>
+
+  <section class="results wrap" id="resultados" aria-live="polite" hidden>
+    <div id="diag"></div>
+    <div id="estado"></div>
+    <div id="informe"></div>
+  </section>
+
+  <section class="band" id="guia">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="kicker">Sin herramientas forenses ni IA</p>
+        <h2>Trece preguntas, tres minutos</h2>
+        <p>Responde con sinceridad. Cada «Sí» es una señal de alerta, no una prueba. Varias señales juntas piden más verificación antes de creer o compartir.</p>
+      </header>
+      <div class="quiz">
+        <ol id="preguntas" class="qlist"></ol>
+        <aside class="qside" aria-live="polite">
+          <div class="meter-card" id="medidor">
+            <p class="meter-label">Señales de alerta</p>
+            <p class="meter-num"><span id="n-alertas">0</span><small> de 13</small></p>
+            <div class="meter-bar"><i id="barra"></i></div>
+            <p class="meter-verdict" id="veredicto">Responde las preguntas para ver el resultado.</p>
+            <p class="meter-pend" id="pendientes"></p>
+            <button class="btn ghost small" type="button" id="reiniciar">Reiniciar</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="tecnicas">
+    <header class="sec-head">
+      <p class="kicker">Glosario práctico</p>
+      <h2>Cómo reconocer cada técnica</h2>
+      <p>Dieciocho técnicas documentadas de desprestigio, manipulación de la imagen y blanqueo, con un caso real y la señal que la delata.</p>
+    </header>
+    <div class="filters" role="group" aria-label="Filtrar técnicas">
+      <button type="button" class="chip on" data-f="todas">Todas</button>
+      <button type="button" class="chip" data-f="Desprestigio">Desprestigio</button>
+      <button type="button" class="chip" data-f="Imagen">Imagen</button>
+      <button type="button" class="chip" data-f="Blanqueo">Blanqueo</button>
+    </div>
+    <div class="cards" id="tarjetas"></div>
+  </section>
+
+  <section class="band" id="acerca">
+    <div class="wrap about">
+      <div>
+        <p class="kicker">Qué puede y qué no puede hacer</p>
+        <h2>Una ayuda para pensar, no un veredicto</h2>
+      </div>
+      <div class="about-cols">
+        <div>
+          <h3>Lo que hace</h3>
+          <ul>
+            <li>Identifica el medio y, cuando está en su lista, quién lo posee o financia.</li>
+            <li>Alerta si el dominio imita a un medio conocido, como en la operación Doppelganger.</li>
+            <li>Señala técnicas de manipulación con el fragmento exacto del texto.</li>
+            <li>Propone búsquedas concretas para la lectura lateral y enlaces a verificadores.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Lo que no hace</h3>
+          <ul>
+            <li>No ve redes de cuentas: con un solo texto no puede probar una campaña coordinada, solo señalar indicios.</li>
+            <li>No sustituye a un verificador profesional ni a un análisis forense de imágenes o audio.</li>
+            <li>La IA puede equivocarse. Comprueba siempre las afirmaciones importantes.</li>
+            <li>No guarda tus consultas. El texto se envía al servicio de lectura y al proveedor de IA solo para generar el informe.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p>Contrastar se basa en el estudio «Desprestigio y blanqueo: métodos comúnmente usados». Código abierto: puedes alojarlo en GitHub Pages o en WordPress.</p>
+    <p><a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener">Creado con Perplexity Computer</a></p>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/prompt.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
